@@ -4,17 +4,16 @@ import { CreateArtistDto } from './dto/create-artist.dto';
 import * as crypto from 'crypto';
 import { IdParamDto } from '../common/id-param.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { DB } from './DB/db';
 
 @Injectable()
 export class ArtistsService {
-  private readonly artist: IArtist[] = [];
-
   findAll(): IArtist[] {
-    return this.artist;
+    return DB;
   }
 
   findOne(params: IdParamDto): IArtist {
-    const artist = this.artist.find((artist) => artist.id === params.id);
+    const artist = DB.find((artist) => artist.id === params.id);
     if (!artist) {
       throw new NotFoundException('No artist with this id');
     }
@@ -26,29 +25,27 @@ export class ArtistsService {
       ...body,
       id: crypto.randomUUID(),
     });
-    this.artist.push(artist);
+    DB.push(artist);
     return artist;
   }
 
   update(params: IdParamDto, body: UpdateArtistDto): IArtist {
     const artist = this.findOne(params);
-    const userIndex = this.artist.findIndex(
-      (artist) => artist.id === params.id,
-    );
+    const userIndex = DB.findIndex((artist) => artist.id === params.id);
     const changedArtist: IArtist = {
       ...artist,
       grammy: body.grammy,
       name: body.name,
     };
-    this.artist.splice(userIndex, 1, changedArtist);
+    DB.splice(userIndex, 1, changedArtist);
     return changedArtist;
   }
 
   delete(params: IdParamDto): void {
-    const artistIndex = this.artist.findIndex((user) => user.id === params.id);
+    const artistIndex = DB.findIndex((user) => user.id === params.id);
     if (artistIndex === -1) {
       throw new NotFoundException('No artist with this id');
     }
-    this.artist.splice(artistIndex, 1);
+    DB.splice(artistIndex, 1);
   }
 }

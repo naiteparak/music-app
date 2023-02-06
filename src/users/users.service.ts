@@ -8,16 +8,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as crypto from 'crypto';
 import { IdParamDto } from '../common/id-param.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { DB } from './DB/db';
 
 @Injectable()
 export class UsersService {
-  private readonly users: IUser[] = [];
   findAll(): IUser[] {
-    return this.users;
+    return DB;
   }
 
   findOne(params: IdParamDto): IUser {
-    const user = this.users.find((user) => user.id === params.id);
+    const user = DB.find((user) => user.id === params.id);
     if (!user) {
       throw new NotFoundException('No user with this id');
     }
@@ -32,7 +32,7 @@ export class UsersService {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
-    this.users.push(user);
+    DB.push(user);
     return user;
   }
 
@@ -41,22 +41,22 @@ export class UsersService {
     if (user.password !== body.oldPassword) {
       throw new ForbiddenException('Old password is incorrect');
     }
-    const userIndex = this.users.findIndex((user) => user.id === params.id);
+    const userIndex = DB.findIndex((user) => user.id === params.id);
     const changedUser = {
       ...user,
       password: body.newPassword,
       version: ++user.version,
       updatedAt: 1,
     };
-    this.users.splice(userIndex, 1, changedUser);
+    DB.splice(userIndex, 1, changedUser);
     return changedUser;
   }
 
   delete(params: IdParamDto): void {
-    const userIndex = this.users.findIndex((user) => user.id === params.id);
+    const userIndex = DB.findIndex((user) => user.id === params.id);
     if (userIndex === -1) {
       throw new NotFoundException('No user with this id');
     }
-    this.users.splice(userIndex, 1);
+    DB.splice(userIndex, 1);
   }
 }
