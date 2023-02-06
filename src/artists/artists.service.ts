@@ -42,7 +42,7 @@ export class ArtistsService {
   }
 
   delete(params: IdParamDto): void {
-    const artistIndex = DB.findIndex((user) => user.id === params.id);
+    const artistIndex = DB.findIndex((artist) => artist.id === params.id);
     if (artistIndex === -1) {
       throw new NotFoundException('No artist with this id');
     }
