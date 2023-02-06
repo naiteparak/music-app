@@ -16,7 +16,7 @@ export class ArtistsService {
   findOne(params: IdParamDto): IArtist {
     const artist = this.artist.find((artist) => artist.id === params.id);
     if (!artist) {
-      throw new NotFoundException('No user with this id');
+      throw new NotFoundException('No artist with this id');
     }
     return artist;
   }
@@ -47,7 +47,7 @@ export class ArtistsService {
   delete(params: IdParamDto): void {
     const artistIndex = this.artist.findIndex((user) => user.id === params.id);
     if (artistIndex === -1) {
-      throw new NotFoundException('No user with this id');
+      throw new NotFoundException('No artist with this id');
     }
     this.artist.splice(artistIndex, 1);
   }
