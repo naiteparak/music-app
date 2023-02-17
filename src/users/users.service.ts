@@ -42,12 +42,12 @@ export class UsersService {
       throw new ForbiddenException('Old password is incorrect');
     }
     const userIndex = DB.findIndex((user) => user.id === params.id);
-    const changedUser = {
+    const changedUser = new User({
       ...user,
       password: body.newPassword,
       version: ++user.version,
       updatedAt: 1,
-    };
+    });
     DB.splice(userIndex, 1, changedUser);
     return changedUser;
   }
