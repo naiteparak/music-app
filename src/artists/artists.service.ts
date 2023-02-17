@@ -12,6 +12,7 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import { DB } from './DB/db';
 import { AlbumsService } from '../albums/albums.service';
 import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class ArtistsService {
@@ -20,6 +21,8 @@ export class ArtistsService {
     private readonly albumsService: AlbumsService,
     @Inject(forwardRef(() => TracksService))
     private readonly tracksService: TracksService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
   ) {}
 
   findAll(): IArtist[] {
@@ -59,6 +62,13 @@ export class ArtistsService {
     const artistIndex = DB.findIndex((artist) => artist.id === params.id);
     if (artistIndex === -1) {
       throw new NotFoundException('No artist with this id');
+    }
+    const favoriteArtist = this.favoritesService.findOne({
+      type: 'artists',
+      id: params.id,
+    });
+    if (favoriteArtist) {
+      this.favoritesService.deleteArtistFromFavorites(params.id);
     }
     const artistAlbums = this.albumsService.findMany({ artistId: params.id });
     for (const album of artistAlbums) {

@@ -12,6 +12,7 @@ import { DB } from './DB/db';
 import { ArtistsService } from '../artists/artists.service';
 import * as lodash from 'lodash';
 import { TracksService } from '../tracks/tracks.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class AlbumsService {
@@ -20,6 +21,8 @@ export class AlbumsService {
     private readonly artistsService: ArtistsService,
     @Inject(forwardRef(() => TracksService))
     private readonly tracksService: TracksService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
   ) {}
 
   findAll(): IAlbum[] {
@@ -70,6 +73,13 @@ export class AlbumsService {
     const albumIndex = DB.findIndex((album) => album.id === params.id);
     if (albumIndex === -1) {
       throw new NotFoundException('No album with this id');
+    }
+    const favoriteAlbum = this.favoritesService.findOne({
+      type: 'albums',
+      id: params.id,
+    });
+    if (favoriteAlbum) {
+      this.favoritesService.deleteAlbumFromFavorites(params.id);
     }
     const albumsTracks = this.tracksService.findMany({ albumId: params.id });
     for (const track of albumsTracks) {

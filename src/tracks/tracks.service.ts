@@ -13,6 +13,7 @@ import { ArtistsService } from '../artists/artists.service';
 import { AlbumsService } from '../albums/albums.service';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import * as lodash from 'lodash';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class TracksService {
@@ -21,6 +22,8 @@ export class TracksService {
     private readonly artistsService: ArtistsService,
     @Inject(forwardRef(() => AlbumsService))
     private readonly albumsService: AlbumsService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
   ) {}
 
   findAll(): ITrack[] {
@@ -75,6 +78,13 @@ export class TracksService {
     const trackIndex = DB.findIndex((track) => track.id === params.id);
     if (trackIndex === -1) {
       throw new NotFoundException('No track with this id');
+    }
+    const favoriteTrack = this.favoritesService.findOne({
+      type: 'tracks',
+      id: params.id,
+    });
+    if (favoriteTrack) {
+      this.favoritesService.deleteTrackFromFavorites(params.id);
     }
     DB.splice(trackIndex, 1);
   }

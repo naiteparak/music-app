@@ -1,7 +1,10 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import IFavorites from './interfaces/favorites.interface';
 import { TracksService } from '../tracks/tracks.service';
@@ -15,8 +18,11 @@ import ITrack from '../tracks/interfaces/track.interface';
 @Injectable()
 export class FavoritesService {
   constructor(
+    @Inject(forwardRef(() => TracksService))
     private readonly tracksService: TracksService,
+    @Inject(forwardRef(() => AlbumsService))
     private readonly albumsService: AlbumsService,
+    @Inject(forwardRef(() => ArtistsService))
     private readonly artistsService: ArtistsService,
   ) {}
 
@@ -24,29 +30,27 @@ export class FavoritesService {
     return DB;
   }
 
-  findOne(key): IAlbum | IArtist | ITrack {
-    switch (key.type) {
+  findOne(params): IAlbum | IArtist | ITrack {
+    switch (params.type) {
       case 'artists':
-        const artist = DB.artists.find((artist) => artist.id === key.id);
-        return artist;
-        break;
+        return DB.artists.find((artist) => artist.id === params.id);
       case 'albums':
-        const album = DB.albums.find((album) => album.id === key.id);
-        return album;
-        break;
+        return DB.albums.find((album) => album.id === params.id);
       case 'tracks':
-        const track = DB.tracks.find((track) => track.id === key.id);
-        return track;
-        break;
+        return DB.tracks.find((track) => track.id === params.id);
       default:
         throw new InternalServerErrorException('Key type is wrong');
     }
   }
 
   addFavoriteTrack(params): string {
-    const favTrack = this.tracksService.findOne({ id: params.id });
-    DB.tracks.push(favTrack);
-    return `Track ${params.id} added to favorites`;
+    try {
+      const favTrack = this.tracksService.findOne({ id: params.id });
+      DB.tracks.push(favTrack);
+      return `Track ${params.id} added to favorites`;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
   }
 
   deleteTrackFromFavorites(id): void {
@@ -58,9 +62,13 @@ export class FavoritesService {
   }
 
   addFavoriteAlbum(params): string {
-    const favAlbum = this.albumsService.findOne({ id: params.id });
-    DB.albums.push(favAlbum);
-    return `Album ${params.id} added to favorites`;
+    try {
+      const favAlbum = this.albumsService.findOne({ id: params.id });
+      DB.albums.push(favAlbum);
+      return `Album ${params.id} added to favorites`;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
   }
 
   deleteAlbumFromFavorites(id): void {
@@ -72,9 +80,13 @@ export class FavoritesService {
   }
 
   addFavoriteArtist(params): string {
-    const favArtist = this.artistsService.findOne({ id: params.id });
-    DB.artists.push(favArtist);
-    return `Artist ${params.id} added to favorites`;
+    try {
+      const favArtist = this.artistsService.findOne({ id: params.id });
+      DB.artists.push(favArtist);
+      return `Artist ${params.id} added to favorites`;
+    } catch (error) {
+      throw new UnprocessableEntityException(error);
+    }
   }
 
   deleteArtistFromFavorites(id): void {
