@@ -1,23 +1,36 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Album, IAlbum } from './interfaces/albums.interface';
 import { IdParamDto } from '../common/id-param.dto';
 import * as crypto from 'crypto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { DB } from './DB/db';
 import { ArtistsService } from '../artists/artists.service';
+import * as lodash from 'lodash';
 
 @Injectable()
 export class AlbumsService {
-  constructor(private readonly artistsService: ArtistsService) {}
+  constructor(
+    @Inject(forwardRef(() => ArtistsService))
+    private readonly artistsService: ArtistsService,
+  ) {}
 
   findAll(): IAlbum[] {
     return DB;
   }
 
+  findMany(key): IAlbum[] {
+    return lodash.filter(DB, lodash.matches(key));
+  }
+
   findOne(params: IdParamDto): IAlbum {
     const album = DB.find((album) => album.id === params.id);
     if (!album) {
-      throw new NotFoundException('No artist with this id');
+      throw new NotFoundException('No album with this id');
     }
     return album;
   }
@@ -35,21 +48,23 @@ export class AlbumsService {
   }
 
   update(params: IdParamDto, body: UpdateAlbumDto): IAlbum {
+    if (body.artistId !== null) {
+      this.artistsService.findOne({ id: body.artistId });
+    }
     const album = this.findOne(params);
-    const userIndex = DB.findIndex((artist) => artist.id === params.id);
-    const changedAlbums: IAlbum = {
+    const albumIndex = DB.findIndex((album) => album.id === params.id);
+    const changedAlbum: IAlbum = {
       ...album,
-      year: body.year,
-      name: body.name,
+      ...body,
     };
-    DB.splice(userIndex, 1, changedAlbums);
-    return changedAlbums;
+    DB.splice(albumIndex, 1, changedAlbum);
+    return changedAlbum;
   }
 
   delete(params: IdParamDto) {
     const albumIndex = DB.findIndex((album) => album.id === params.id);
     if (albumIndex === -1) {
-      throw new NotFoundException('No artist with this id');
+      throw new NotFoundException('No album with this id');
     }
     DB.splice(albumIndex, 1);
   }
