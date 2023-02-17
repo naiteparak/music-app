@@ -11,12 +11,15 @@ import { UpdateAlbumDto } from './dto/update-album.dto';
 import { DB } from './DB/db';
 import { ArtistsService } from '../artists/artists.service';
 import * as lodash from 'lodash';
+import { TracksService } from '../tracks/tracks.service';
 
 @Injectable()
 export class AlbumsService {
   constructor(
     @Inject(forwardRef(() => ArtistsService))
     private readonly artistsService: ArtistsService,
+    @Inject(forwardRef(() => TracksService))
+    private readonly tracksService: TracksService,
   ) {}
 
   findAll(): IAlbum[] {
@@ -36,7 +39,9 @@ export class AlbumsService {
   }
 
   create(body): IAlbum {
-    this.artistsService.findOne({ id: body.artistId });
+    if (body.artistId !== null) {
+      this.artistsService.findOne({ id: body.artistId });
+    }
     const album = new Album({
       artistId: body.artistId,
       id: crypto.randomUUID(),
@@ -65,6 +70,16 @@ export class AlbumsService {
     const albumIndex = DB.findIndex((album) => album.id === params.id);
     if (albumIndex === -1) {
       throw new NotFoundException('No album with this id');
+    }
+    const albumsTracks = this.tracksService.findMany({ albumId: params.id });
+    for (const track of albumsTracks) {
+      this.tracksService.update(
+        {
+          ...track,
+          albumId: null,
+        },
+        { id: track.id },
+      );
     }
     DB.splice(albumIndex, 1);
   }

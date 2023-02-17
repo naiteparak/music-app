@@ -11,12 +11,15 @@ import { IdParamDto } from '../common/id-param.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { DB } from './DB/db';
 import { AlbumsService } from '../albums/albums.service';
+import { TracksService } from '../tracks/tracks.service';
 
 @Injectable()
 export class ArtistsService {
   constructor(
     @Inject(forwardRef(() => AlbumsService))
     private readonly albumsService: AlbumsService,
+    @Inject(forwardRef(() => TracksService))
+    private readonly tracksService: TracksService,
   ) {}
 
   findAll(): IArtist[] {
@@ -65,6 +68,16 @@ export class ArtistsService {
           ...album,
           artistId: null,
         },
+      );
+    }
+    const artistsTracks = this.tracksService.findMany({ artistId: params.id });
+    for (const track of artistsTracks) {
+      this.tracksService.update(
+        {
+          ...track,
+          artistId: null,
+        },
+        { id: track.id },
       );
     }
     DB.splice(artistIndex, 1);

@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -36,12 +38,13 @@ export class TracksController {
 
   @Put(':id')
   async update(
-    @Body() body: UpdateTrackDto,
     @Param() params: IdParamDto,
+    @Body() body: UpdateTrackDto,
   ): Promise<ITrack> {
     return this.tracksService.update(body, params);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param() params: IdParamDto): Promise<void> {
     return this.tracksService.delete(params);

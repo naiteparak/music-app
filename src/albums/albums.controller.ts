@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -42,6 +44,7 @@ export class AlbumsController {
     return this.albumsService.update(params, body);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param() params: IdParamDto) {
     return this.albumsService.delete(params);
