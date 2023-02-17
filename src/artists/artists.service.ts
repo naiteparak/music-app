@@ -58,7 +58,6 @@ export class ArtistsService {
       throw new NotFoundException('No artist with this id');
     }
     const artistAlbums = this.albumsService.findMany({ artistId: params.id });
-    console.log(artistAlbums);
     for (const album of artistAlbums) {
       this.albumsService.update(
         { id: album.id },
