@@ -1,1 +1,5 @@
-export const DB = [];
+export const DB = {
+  artists: [],
+  albums: [],
+  tracks: [],
+};
