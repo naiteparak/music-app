@@ -5,7 +5,7 @@ config();
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  entities: ['dist/*/.entity.js'],
+  entities: ['dist/**/*.entity.js'],
   migrations: ['dist/db/migrations/*.js'],
   host: 'localhost',
   port: +process.env.POSTGRES_PORT,
