@@ -4,15 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Artist, IArtist } from './interfaces/artists.interface';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import * as crypto from 'crypto';
 import { IdParamDto } from '../common/id-param.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-import { DB } from './DB/db';
 import { AlbumsService } from '../albums/albums.service';
 import { TracksService } from '../tracks/tracks.service';
 import { FavoritesService } from '../favorites/favorites.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ArtistsEntity } from './entities/artists.entity';
 
 @Injectable()
 export class ArtistsService {
@@ -23,46 +24,46 @@ export class ArtistsService {
     private readonly tracksService: TracksService,
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+    @InjectRepository(ArtistsEntity)
+    private artistsRepository: Repository<ArtistsEntity>,
   ) {}
 
-  findAll(): IArtist[] {
-    return DB;
+  async findAll(): Promise<ArtistsEntity[]> {
+    return await this.artistsRepository.find();
   }
 
-  findOne(params: IdParamDto): IArtist {
-    const artist = DB.find((artist) => artist.id === params.id);
+  async findOne(params: IdParamDto): Promise<ArtistsEntity> {
+    const artist = await this.artistsRepository.findOneBy({ id: params.id });
     if (!artist) {
       throw new NotFoundException('No artist with this id');
     }
     return artist;
   }
 
-  create(body: CreateArtistDto): IArtist {
-    const artist = new Artist({
+  async create(body: CreateArtistDto): Promise<ArtistsEntity> {
+    const artist: ArtistsEntity = await this.artistsRepository.create({
       ...body,
       id: crypto.randomUUID(),
     });
-    DB.push(artist);
-    return artist;
+    return await this.artistsRepository.save(artist);
   }
 
-  update(params: IdParamDto, body: UpdateArtistDto): IArtist {
-    const artist = this.findOne(params);
-    const artistIndex = DB.findIndex((artist) => artist.id === params.id);
-    const changedArtist: IArtist = {
+  async update(
+    params: IdParamDto,
+    body: UpdateArtistDto,
+  ): Promise<ArtistsEntity> {
+    const artist: ArtistsEntity = await this.findOne(params);
+    const updatedArtist: ArtistsEntity = await this.artistsRepository.create({
       ...artist,
       grammy: body.grammy,
       name: body.name,
-    };
-    DB.splice(artistIndex, 1, changedArtist);
-    return changedArtist;
+    });
+    return await this.artistsRepository.save(updatedArtist);
   }
 
-  delete(params: IdParamDto): void {
-    const artistIndex = DB.findIndex((artist) => artist.id === params.id);
-    if (artistIndex === -1) {
-      throw new NotFoundException('No artist with this id');
-    }
+  async delete(params: IdParamDto): Promise<void> {
+    const artist = await this.findOne(params);
+    await this.artistsRepository.delete(artist.id);
     const favoriteArtist = this.favoritesService.findOne({
       type: 'artists',
       id: params.id,
@@ -90,6 +91,5 @@ export class ArtistsService {
         { id: track.id },
       );
     }
-    DB.splice(artistIndex, 1);
   }
 }

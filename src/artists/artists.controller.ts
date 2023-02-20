@@ -15,6 +15,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { IdParamDto } from '../common/id-param.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { ArtistsEntity } from './entities/artists.entity';
 
 @ApiTags('Artists')
 @Controller('artist')
@@ -22,18 +23,18 @@ export class ArtistsController {
   constructor(private readonly artistsService: ArtistsService) {}
 
   @Get()
-  async findAll(): Promise<IArtist[]> {
-    return this.artistsService.findAll();
+  async findAll(): Promise<ArtistsEntity[]> {
+    return await this.artistsService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param() params: IdParamDto): Promise<IArtist> {
-    return this.artistsService.findOne(params);
+  async findOne(@Param() params: IdParamDto): Promise<ArtistsEntity> {
+    return await this.artistsService.findOne(params);
   }
 
   @Post()
-  async create(@Body() body: CreateArtistDto): Promise<IArtist> {
-    return this.artistsService.create(body);
+  async create(@Body() body: CreateArtistDto): Promise<ArtistsEntity> {
+    return await this.artistsService.create(body);
   }
 
   @Put(':id')
@@ -41,12 +42,12 @@ export class ArtistsController {
     @Param() params: IdParamDto,
     @Body() body: UpdateArtistDto,
   ): Promise<IArtist> {
-    return this.artistsService.update(params, body);
+    return await this.artistsService.update(params, body);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param() params: IdParamDto): Promise<void> {
-    return this.artistsService.delete(params);
+    return await this.artistsService.delete(params);
   }
 }
