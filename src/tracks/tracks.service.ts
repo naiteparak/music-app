@@ -4,8 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DB } from './DB/db';
-import ITrack, { Track } from './interfaces/track.interface';
 import { IdParamDto } from '../common/id-param.dto';
 import * as crypto from 'crypto';
 import { CreateTrackDto } from './dto/create-track.dto';
@@ -14,6 +12,9 @@ import { AlbumsService } from '../albums/albums.service';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import * as lodash from 'lodash';
 import { FavoritesService } from '../favorites/favorites.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { TracksEntity } from './entities/tracks.entity';
 
 @Injectable()
 export class TracksService {
@@ -24,61 +25,63 @@ export class TracksService {
     private readonly albumsService: AlbumsService,
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+    @InjectRepository(TracksEntity)
+    private tracksRepository: Repository<TracksEntity>,
   ) {}
 
-  findAll(): ITrack[] {
-    return DB;
+  async findAll(): Promise<TracksEntity[]> {
+    return await this.tracksRepository.find();
   }
 
-  findMany(key): ITrack[] {
-    return lodash.filter(DB, lodash.matches(key));
+  async findMany(key): Promise<TracksEntity[]> {
+    const tracks = await this.findAll();
+    return lodash.filter(tracks, lodash.matches(key));
   }
 
-  findOne(params: IdParamDto): ITrack {
-    const track = DB.find((track) => track.id === params.id);
+  async findOne(params: IdParamDto): Promise<TracksEntity> {
+    const track = await this.tracksRepository.findOneBy({ id: params.id });
     if (!track) {
       throw new NotFoundException('No track with this id');
     }
     return track;
   }
 
-  create(body: CreateTrackDto): ITrack {
+  async create(body: CreateTrackDto): Promise<TracksEntity> {
     if (body.albumId !== null) {
-      this.albumsService.findOne({ id: body.albumId });
+      await this.albumsService.findOne({ id: body.albumId });
     }
     if (body.artistId !== null) {
-      this.artistsService.findOne({ id: body.artistId });
+      await this.artistsService.findOne({ id: body.artistId });
     }
-    const track = new Track({
-      ...body,
+    const track: TracksEntity = await this.tracksRepository.create({
       id: crypto.randomUUID(),
+      ...body,
     });
-    DB.push(track);
-    return track;
+    return await this.tracksRepository.save(track);
   }
 
-  update(body: UpdateTrackDto, params: IdParamDto): ITrack {
+  async update(
+    body: UpdateTrackDto,
+    params: IdParamDto,
+  ): Promise<TracksEntity> {
     if (body.albumId !== null) {
-      this.albumsService.findOne({ id: body.albumId });
+      await this.albumsService.findOne({ id: body.albumId });
     }
     if (body.artistId !== null) {
-      this.artistsService.findOne({ id: body.artistId });
+      await this.artistsService.findOne({ id: body.artistId });
     }
-    const track = this.findOne(params);
-    const trackIndex = DB.findIndex((track) => track.id === params.id);
-    const changedTrack: ITrack = {
+
+    const track: TracksEntity = await this.findOne(params);
+    const updatedTrack: TracksEntity = await this.tracksRepository.create({
       ...track,
       ...body,
-    };
-    DB.splice(trackIndex, 1, changedTrack);
-    return changedTrack;
+    });
+    return await this.tracksRepository.save(updatedTrack);
   }
 
-  delete(params: IdParamDto): void {
-    const trackIndex = DB.findIndex((track) => track.id === params.id);
-    if (trackIndex === -1) {
-      throw new NotFoundException('No track with this id');
-    }
+  async delete(params: IdParamDto): Promise<void> {
+    const track = await this.findOne(params);
+    await this.tracksRepository.delete(track.id);
     const favoriteTrack = this.favoritesService.findOne({
       type: 'tracks',
       id: params.id,
@@ -86,6 +89,5 @@ export class TracksService {
     if (favoriteTrack) {
       this.favoritesService.deleteTrackFromFavorites(params.id);
     }
-    DB.splice(trackIndex, 1);
   }
 }
