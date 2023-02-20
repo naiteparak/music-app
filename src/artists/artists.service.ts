@@ -71,7 +71,9 @@ export class ArtistsService {
     if (favoriteArtist) {
       this.favoritesService.deleteArtistFromFavorites(params.id);
     }
-    const artistAlbums = this.albumsService.findMany({ artistId: params.id });
+    const artistAlbums = await this.albumsService.findMany({
+      artistId: params.id,
+    });
     for (const album of artistAlbums) {
       this.albumsService.update(
         { id: album.id },

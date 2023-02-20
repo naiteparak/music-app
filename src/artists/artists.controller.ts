@@ -10,7 +10,6 @@ import {
   Put,
 } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
-import { IArtist } from './interfaces/artists.interface';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { IdParamDto } from '../common/id-param.dto';
@@ -41,7 +40,7 @@ export class ArtistsController {
   async update(
     @Param() params: IdParamDto,
     @Body() body: UpdateArtistDto,
-  ): Promise<IArtist> {
+  ): Promise<ArtistsEntity> {
     return await this.artistsService.update(params, body);
   }
 
