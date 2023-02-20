@@ -1,3 +1,2 @@
 FROM postgres
 EXPOSE ${POSTGRES_PORT}
-VOLUME /var/lib/postgresql/data
