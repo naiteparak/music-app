@@ -1,5 +1,5 @@
 openapi: 3.0.0
-paths:
+paths: #TODO
   "/user":
     get:
       operationId: UsersController_findAll

@@ -33,6 +33,10 @@ export class AlbumsService {
     return await this.albumsRepository.find();
   }
 
+  async findAllFavorites(): Promise<AlbumsEntity[]> {
+    return await this.albumsRepository.findBy({ isFavorite: true });
+  }
+
   async findMany(key): Promise<AlbumsEntity[]> {
     const albums = await this.findAll();
     return lodash.filter(albums, lodash.matches(key));
@@ -65,22 +69,27 @@ export class AlbumsService {
       await this.artistsService.findOne({ id: body.artistId });
     }
     const album: AlbumsEntity = await this.findOne(params);
-    const updatedAlbum: AlbumsEntity = await this.albumsRepository.create({
-      ...album,
-      ...body,
-    });
-    return await this.albumsRepository.save(updatedAlbum);
+
+    await this.albumsRepository.update(
+      { id: params.id },
+      {
+        ...album,
+        ...body,
+      },
+    );
+
+    return this.albumsRepository.findOneBy({ id: params.id });
   }
 
   async delete(params: IdParamDto) {
     const album = await this.findOne(params);
     await this.albumsRepository.delete(album.id);
-    const favoriteAlbum = this.favoritesService.findOne({
+    const favoriteAlbum = await this.favoritesService.findOne({
       type: 'albums',
       id: params.id,
     });
     if (favoriteAlbum) {
-      this.favoritesService.deleteAlbumFromFavorites(params.id);
+      await this.favoritesService.deleteAlbumFromFavorites(params.id);
     }
     const albumsTracks = await this.tracksService.findMany({
       albumId: params.id,

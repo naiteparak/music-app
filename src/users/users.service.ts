@@ -49,13 +49,17 @@ export class UsersService {
     if (user.password !== body.oldPassword) {
       throw new ForbiddenException('Old password is incorrect');
     }
-    const updatedUser: UserEntity = await this.usersRepository.create({
-      ...user,
-      password: body.newPassword,
-      version: ++user.version,
-      updatedAt: Date.now(),
-    });
-    return await this.usersRepository.save(updatedUser);
+    await this.usersRepository.update(
+      { id: params.id },
+      {
+        ...user,
+        password: body.newPassword,
+        version: ++user.version,
+        updatedAt: Date.now(),
+      },
+    );
+
+    return this.usersRepository.findOneBy({ id: params.id });
   }
 
   async delete(params: IdParamDto): Promise<void> {

@@ -33,6 +33,10 @@ export class TracksService {
     return await this.tracksRepository.find();
   }
 
+  async findAllFavorites(): Promise<TracksEntity[]> {
+    return await this.tracksRepository.findBy({ isFavorite: true });
+  }
+
   async findMany(key): Promise<TracksEntity[]> {
     const tracks = await this.findAll();
     return lodash.filter(tracks, lodash.matches(key));
@@ -41,7 +45,7 @@ export class TracksService {
   async findOne(params: IdParamDto): Promise<TracksEntity> {
     const track = await this.tracksRepository.findOneBy({ id: params.id });
     if (!track) {
-      throw new NotFoundException('No track with this id');
+      throw new NotFoundException('Track not found');
     }
     return track;
   }
@@ -72,11 +76,16 @@ export class TracksService {
     }
 
     const track: TracksEntity = await this.findOne(params);
-    const updatedTrack: TracksEntity = await this.tracksRepository.create({
-      ...track,
-      ...body,
-    });
-    return await this.tracksRepository.save(updatedTrack);
+
+    await this.tracksRepository.update(
+      { id: params.id },
+      {
+        ...track,
+        ...body,
+      },
+    );
+
+    return this.tracksRepository.findOneBy({ id: params.id });
   }
 
   async delete(params: IdParamDto): Promise<void> {
@@ -87,7 +96,7 @@ export class TracksService {
       id: params.id,
     });
     if (favoriteTrack) {
-      this.favoritesService.deleteTrackFromFavorites(params.id);
+      await this.favoritesService.deleteTrackFromFavorites(params.id);
     }
   }
 }

@@ -1,16 +1,16 @@
 services:
-  app:
-    build:
-      dockerfile: Dockerfile
-    depends_on:
-      - postgres
-    volumes:
-      - ./:/app
-    networks:
-      - custom_bridge
-    ports:
-      - ${PORT}:${PORT}
-    restart: always
+#  app:
+#    build:
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - postgres
+#    volumes:
+#      - ./:/app
+#    networks:
+#      - custom_bridge
+#    ports:
+#      - ${PORT}:${PORT}
+#    restart: always
   postgres:
     build:
       dockerfile: Dockerfile-db
