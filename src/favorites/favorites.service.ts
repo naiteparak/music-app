@@ -11,9 +11,6 @@ import { TracksService } from '../tracks/tracks.service';
 import { DB } from './DB/db';
 import { AlbumsService } from '../albums/albums.service';
 import { ArtistsService } from '../artists/artists.service';
-import { IAlbum } from '../albums/interfaces/albums.interface';
-import { IArtist } from '../artists/interfaces/artists.interface';
-import ITrack from '../tracks/interfaces/track.interface';
 
 @Injectable()
 export class FavoritesService {
@@ -30,7 +27,7 @@ export class FavoritesService {
     return DB;
   }
 
-  findOne(params): IAlbum | IArtist | ITrack {
+  findOne(params): any {
     switch (params.type) {
       case 'artists':
         return DB.artists.find((artist) => artist.id === params.id);

@@ -15,6 +15,9 @@ export class AlbumsEntity {
   @Column({ nullable: true })
   artistId: string | null;
 
+  @Column({ select: false, default: false })
+  isFavorite: boolean;
+
   @ManyToOne(() => ArtistsEntity, {
     onDelete: 'SET NULL',
   })

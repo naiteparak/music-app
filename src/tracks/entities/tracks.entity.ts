@@ -10,25 +10,21 @@ export class TracksEntity {
   @Column()
   name: string;
 
-  @Column()
-  password: string;
-
-  @Column()
+  @Column({ nullable: true })
   artistId: string | null;
 
-  @Column()
+  @Column({ nullable: true })
   albumId: string | null;
 
   @Column()
   duration: number;
 
-  @ManyToOne(() => ArtistsEntity, {
-    onDelete: 'SET NULL',
-  })
+  @ManyToOne(() => ArtistsEntity, { onDelete: 'SET NULL' })
   artist: ArtistsEntity;
 
-  @ManyToOne(() => AlbumsEntity, {
-    onDelete: 'SET NULL',
-  })
-  albums: AlbumsEntity;
+  @ManyToOne(() => AlbumsEntity, { onDelete: 'SET NULL' })
+  album: AlbumsEntity;
+
+  @Column({ select: false, default: false })
+  isFavorite: boolean;
 }

@@ -39,11 +39,11 @@ export class AlbumsService {
   }
 
   async findOne(params: IdParamDto): Promise<AlbumsEntity> {
-    const albums = await this.albumsRepository.findOneBy({ id: params.id });
-    if (!albums) {
-      throw new NotFoundException('No artist with this id');
+    const album = await this.albumsRepository.findOneBy({ id: params.id });
+    if (!album) {
+      throw new NotFoundException('No album with this id');
     }
-    return albums;
+    return album;
   }
 
   async create(body: CreateAlbumDto): Promise<AlbumsEntity> {
@@ -82,9 +82,11 @@ export class AlbumsService {
     if (favoriteAlbum) {
       this.favoritesService.deleteAlbumFromFavorites(params.id);
     }
-    const albumsTracks = this.tracksService.findMany({ albumId: params.id });
+    const albumsTracks = await this.tracksService.findMany({
+      albumId: params.id,
+    });
     for (const track of albumsTracks) {
-      this.tracksService.update(
+      await this.tracksService.update(
         {
           ...track,
           albumId: null,

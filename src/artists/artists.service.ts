@@ -75,7 +75,7 @@ export class ArtistsService {
       artistId: params.id,
     });
     for (const album of artistAlbums) {
-      this.albumsService.update(
+      await this.albumsService.update(
         { id: album.id },
         {
           ...album,
@@ -83,9 +83,11 @@ export class ArtistsService {
         },
       );
     }
-    const artistsTracks = this.tracksService.findMany({ artistId: params.id });
+    const artistsTracks = await this.tracksService.findMany({
+      artistId: params.id,
+    });
     for (const track of artistsTracks) {
-      this.tracksService.update(
+      await this.tracksService.update(
         {
           ...track,
           artistId: null,

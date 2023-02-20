@@ -10,4 +10,7 @@ export class ArtistsEntity {
 
   @Column()
   grammy: boolean;
+
+  @Column({ select: false, default: false })
+  isFavorite: boolean;
 }
