@@ -91,12 +91,5 @@ export class TracksService {
   async delete(params: IdParamDto): Promise<void> {
     const track = await this.findOne(params);
     await this.tracksRepository.delete(track.id);
-    const favoriteTrack = this.favoritesService.findOne({
-      type: 'tracks',
-      id: params.id,
-    });
-    if (favoriteTrack) {
-      await this.favoritesService.deleteTrackFromFavorites(params.id);
-    }
   }
 }

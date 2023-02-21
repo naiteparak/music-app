@@ -64,9 +64,9 @@ export class FavoritesService {
     }
   }
 
-  async deleteTrackFromFavorites(id): Promise<void> {
-    await this.tracksService.findOne({ id: id });
-    await this.tracksService.delete({ id: id });
+  async deleteTrackFromFavorites(params): Promise<void> {
+    const favTrack = await this.tracksService.findOne({ id: params.id });
+    await this.tracksService.update({ ...favTrack, isFavorite: false }, params);
   }
 
   async addFavoriteAlbum(params): Promise<string> {
@@ -82,9 +82,9 @@ export class FavoritesService {
     }
   }
 
-  async deleteAlbumFromFavorites(id): Promise<void> {
-    await this.albumsService.findOne({ id: id });
-    await this.albumsService.delete({ id: id });
+  async deleteAlbumFromFavorites(params): Promise<void> {
+    const favAlbum = await this.albumsService.findOne({ id: params.id });
+    await this.albumsService.update(params, { ...favAlbum, isFavorite: false });
   }
 
   async addFavoriteArtist(params): Promise<string> {
@@ -100,8 +100,11 @@ export class FavoritesService {
     }
   }
 
-  async deleteArtistFromFavorites(id): Promise<void> {
-    await this.artistsService.findOne({ id: id });
-    await this.artistsService.delete({ id: id });
+  async deleteArtistFromFavorites(params): Promise<void> {
+    const favArtist = await this.artistsService.findOne({ id: params.id });
+    await this.artistsService.update(params, {
+      ...favArtist,
+      isFavorite: false,
+    });
   }
 }

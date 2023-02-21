@@ -72,13 +72,6 @@ export class ArtistsService {
   async delete(params: IdParamDto): Promise<void> {
     const artist = await this.findOne(params);
     await this.artistsRepository.delete(artist.id);
-    const favoriteArtist = this.favoritesService.findOne({
-      type: 'artists',
-      id: params.id,
-    });
-    if (favoriteArtist) {
-      await this.favoritesService.deleteArtistFromFavorites(params.id);
-    }
     const artistAlbums = await this.albumsService.findMany({
       artistId: params.id,
     });
