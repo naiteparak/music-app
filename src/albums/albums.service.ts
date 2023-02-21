@@ -84,17 +84,5 @@ export class AlbumsService {
   async delete(params: IdParamDto) {
     const album = await this.findOne(params);
     await this.albumsRepository.delete(album.id);
-    const albumsTracks = await this.tracksService.findMany({
-      albumId: params.id,
-    });
-    for (const track of albumsTracks) {
-      await this.tracksService.update(
-        {
-          ...track,
-          albumId: null,
-        },
-        { id: track.id },
-      );
-    }
   }
 }
