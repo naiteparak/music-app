@@ -29,7 +29,7 @@ npm start
 docker-compose up
 ```
 
-## Run migrations 
+## Running migrations 
 
 ```
 npm run migrations run
