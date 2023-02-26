@@ -8,6 +8,8 @@ import { Observable, tap, catchError, throwError } from 'rxjs';
 import { LoggerService } from '../Logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { response } from 'express';
+import { writeFileSync } from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -24,25 +26,38 @@ export class LoggingInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Observable<any> | Promise<Observable<any>> {
     const request = context.switchToHttp().getRequest();
-    this.loggerService.log({
-      url: `${request.method} ${request.url} request received`,
+    const result = {
+      message: `${request.method} ${request.url} request received`,
       query: request.query,
       body: request.body,
-    });
+    };
+    const relativePath = path.resolve('logs', 'logs.log');
+    writeFileSync(relativePath, JSON.stringify(result) + '\n', { flag: 'a+' });
+    this.loggerService.log(result);
     return next.handle().pipe(
       tap((body) => {
         const response = context.switchToHttp().getResponse();
-        this.loggerService.log({
+        const result = {
           statusCode: response.statusCode,
-          url: `${response.req.method} ${response.req.url} response sent`,
+          message: `${response.req.method} ${response.req.url} response sent`,
           body: body,
+        };
+        const relativePath = path.resolve('logs', 'logs.log');
+        writeFileSync(relativePath, JSON.stringify(result) + '\n', {
+          flag: 'a+',
         });
+        this.loggerService.log(result);
       }),
       catchError((err) => {
-        this.loggerService.error({
+        const result = {
           statusCode: response.statusCode,
           errorMessage: err.message,
+        };
+        const relativePath = path.resolve('logs', 'errors.log');
+        writeFileSync(relativePath, JSON.stringify(result) + '\n', {
+          flag: 'a+',
         });
+        this.loggerService.error(result);
         return throwError(err);
       }),
     );
