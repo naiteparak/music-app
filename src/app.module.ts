@@ -8,7 +8,8 @@ import { FavoritesModule } from './favorites/favorites.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggingInterceptor } from './common/loggingInterceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggerModule } from './Logger/loger.module';
+import { LoggerModule } from './logger/loger.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { LoggerModule } from './Logger/loger.module';
     TracksModule,
     FavoritesModule,
     LoggerModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [
