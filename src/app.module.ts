@@ -6,6 +6,9 @@ import { AlbumsModule } from './albums/albums.module';
 import { TracksModule } from './tracks/tracks.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LoggingInterceptor } from './common/loggingInterceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerModule } from './Logger/loger.module';
 
 @Module({
   imports: [
@@ -29,8 +32,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AlbumsModule,
     TracksModule,
     FavoritesModule,
+    LoggerModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+  ],
 })
 export class AppModule {}
