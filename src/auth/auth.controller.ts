@@ -1,8 +1,10 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RefreshTokenGuard } from './guards/refreshToken.guard';
+import { RefreshTokenDto } from './dto/refreshToken.dto';
 
 @ApiTags('Authorization')
 @Controller('auth')
@@ -17,13 +19,14 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() body: CreateUserDto) {
-    return this.authService.login(body);
+  async login(@Body() body: CreateUserDto, @Req() req) {
+    return this.authService.login(req.user);
   }
 
-  @UseGuards()
+  @ApiBearerAuth()
+  @UseGuards(RefreshTokenGuard)
   @Post('refresh')
-  refresh(@Body() body) {
-    return this.authService.refresh(body);
+  async refresh(@Body() body: RefreshTokenDto, @Req() req) {
+    return this.authService.refresh(req.user, body.refreshToken);
   }
 }

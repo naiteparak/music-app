@@ -29,8 +29,29 @@ export class AuthService {
     return 'You have successfully sign up';
   }
 
-  async login(user) {
-    return {
+  async login(body): Promise<object> {
+    console.log(body.user);
+    return await this.getTokens(body.user);
+  }
+
+  async refresh(reqUser, token): Promise<object> {
+    const user = await this.userService.findOne(reqUser);
+    if (user.refreshToken !== token) {
+      throw new ConflictException('Wrong refresh token');
+    }
+    return await this.getTokens(reqUser);
+  }
+
+  async refreshToken(login, token): Promise<any> {
+    const user = await this.userService.findOneByLogin(login);
+    await this.userService.updateToken(
+      { id: user.id },
+      { ...user, refreshToken: token },
+    );
+  }
+
+  async getTokens(user): Promise<object> {
+    const payload = {
       access_token: this.jwtService.sign(
         { id: user.id, login: user.login },
         {
@@ -46,9 +67,7 @@ export class AuthService {
         },
       ),
     };
-  }
-
-  async refresh(body) {
-    return `This action returns a # auth`;
+    await this.refreshToken(user.login, payload.refresh_token);
+    return payload;
   }
 }

@@ -66,6 +66,16 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id: params.id });
   }
 
+  async updateToken(params: IdParamDto, body) {
+    await this.usersRepository.update(
+      { id: params.id },
+      {
+        ...body.user,
+        refreshToken: body.refreshToken,
+      },
+    );
+  }
+
   async delete(params: IdParamDto): Promise<void> {
     const user = await this.findOne(params);
     await this.usersRepository.delete(user.id);

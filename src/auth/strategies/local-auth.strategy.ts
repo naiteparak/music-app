@@ -23,6 +23,9 @@ export class LocalAuthStrategy extends PassportStrategy(Strategy, 'local') {
     if (!comparePasswords) {
       throw new UnauthorizedException('Something is incorrect');
     }
-    return user;
+    return {
+      user: user,
+      id: user.id,
+    };
   }
 }
