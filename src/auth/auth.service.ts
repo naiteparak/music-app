@@ -14,10 +14,6 @@ export class AuthService {
   ) {}
 
   async signup(body: CreateUserDto): Promise<string> {
-    const user = await this.userService.findOneByLogin(body.login);
-    if (user) {
-      throw new ConflictException('User with this username already exist');
-    }
     const hashedPass = await bcrypt.hash(
       body.password,
       +this.configService.get('CRYPT_SALT'),
@@ -30,7 +26,6 @@ export class AuthService {
   }
 
   async login(body): Promise<object> {
-    console.log(body.user);
     return await this.getTokens(body.user);
   }
 

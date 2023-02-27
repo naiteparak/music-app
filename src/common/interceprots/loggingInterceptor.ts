@@ -5,7 +5,7 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '../../logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { response } from 'express';
 import { writeFileSync } from 'fs';
