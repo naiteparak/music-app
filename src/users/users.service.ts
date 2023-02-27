@@ -22,6 +22,10 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
+  async findOneByLogin(params): Promise<UserEntity> {
+    return await this.usersRepository.findOneBy({ login: params });
+  }
+
   async findOne(params: IdParamDto): Promise<UserEntity> {
     const user = await this.usersRepository.findOneBy({ id: params.id });
     if (!user) {

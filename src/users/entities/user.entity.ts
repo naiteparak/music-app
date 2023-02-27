@@ -22,6 +22,9 @@ export class UserEntity {
   @Column('int8')
   updatedAt: number;
 
+  @Column({ nullable: true })
+  refreshToken: string | null;
+
   @AfterLoad()
   _convertNumerics() {
     this.createdAt = +this.createdAt;

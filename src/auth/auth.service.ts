@@ -1,30 +1,51 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { Repository } from 'typeorm';
-import { UserEntity } from '../users/entities/user.entity';
-import crypto from 'crypto';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersRepository: Repository<UserEntity>) {}
-  async signup(body: CreateUserDto): Promise<UserEntity> {
-    const user: UserEntity = await this.usersRepository.create({
-      ...body,
-      id: crypto.randomUUID(),
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-    return await this.usersRepository.save(user);
-  }
+  constructor(
+    private readonly userService: UsersService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async login(body: CreateUserDto) {
-    const user = await this.usersRepository.findOneBy({
+  async signup(body: CreateUserDto): Promise<string> {
+    const user = await this.userService.findOneByLogin(body.login);
+    if (user) {
+      throw new ConflictException('User with this username already exist');
+    }
+    const hashedPass = await bcrypt.hash(
+      body.password,
+      +this.configService.get('CRYPT_SALT'),
+    );
+    await this.userService.create({
+      password: hashedPass,
       login: body.login,
     });
-    if (user.password !== body.password || !user) {
-      throw new ForbiddenException('Something is incorrect');
-    }
+    return 'You have successfully sign up';
+  }
+
+  async login(user) {
+    return {
+      access_token: this.jwtService.sign(
+        { id: user.id, login: user.login },
+        {
+          secret: this.configService.get('JWT_SECRET_KEY'),
+          expiresIn: this.configService.get('TOKEN_EXPIRE_TIME'),
+        },
+      ),
+      refresh_token: this.jwtService.sign(
+        {},
+        {
+          secret: this.configService.get('JWT_SECRET_REFRESH_KEY'),
+          expiresIn: this.configService.get('TOKEN_REFRESH_EXPIRE_TIME'),
+        },
+      ),
+    };
   }
 
   async refresh(body) {
