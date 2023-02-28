@@ -10,7 +10,7 @@ export class UserEntity {
   login: string;
 
   @Exclude()
-  @Column('varchar', { unique: true })
+  @Column('varchar')
   password: string;
 
   @Column('int')
