@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { IdParamDto } from '../common/id-param.dto';
+import { IdParamDto } from '../common/dto/id-param.dto';
 import { FavoritesService } from './favorites.service';
 import IFavorites from './interfaces/favorites.interface';
 

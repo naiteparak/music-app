@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as crypto from 'crypto';
-import { IdParamDto } from '../common/id-param.dto';
+import { IdParamDto } from '../common/dto/id-param.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -20,6 +20,10 @@ export class UsersService {
 
   async findAll(): Promise<UserEntity[]> {
     return await this.usersRepository.find();
+  }
+
+  async findOneByLogin(params): Promise<UserEntity> {
+    return await this.usersRepository.findOneBy({ login: params });
   }
 
   async findOne(params: IdParamDto): Promise<UserEntity> {
@@ -60,6 +64,16 @@ export class UsersService {
     );
 
     return this.usersRepository.findOneBy({ id: params.id });
+  }
+
+  async updateToken(params: IdParamDto, body) {
+    await this.usersRepository.update(
+      { id: params.id },
+      {
+        ...body.user,
+        refreshToken: body.refreshToken,
+      },
+    );
   }
 
   async delete(params: IdParamDto): Promise<void> {

@@ -5,7 +5,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./:/app
+      - .:/app
+      - node_modules:/app/node_modules
     networks:
       - custom_bridge
     ports:
@@ -29,3 +30,4 @@ networks:
   custom_bridge:
 volumes:
   pgdata:
+  node_modules:

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TracksService } from './tracks.service';
-import { IdParamDto } from '../common/id-param.dto';
+import { IdParamDto } from '../common/dto/id-param.dto';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { TracksEntity } from './entities/tracks.entity';

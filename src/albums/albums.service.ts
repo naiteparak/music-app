@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IdParamDto } from '../common/id-param.dto';
+import { IdParamDto } from '../common/dto/id-param.dto';
 import * as crypto from 'crypto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { ArtistsService } from '../artists/artists.service';

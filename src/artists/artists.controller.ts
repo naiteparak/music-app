@@ -12,7 +12,7 @@ import {
 import { ArtistsService } from './artists.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { IdParamDto } from '../common/id-param.dto';
+import { IdParamDto } from '../common/dto/id-param.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { ArtistsEntity } from './entities/artists.entity';
 
