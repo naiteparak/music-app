@@ -1,4 +1,12 @@
-# Home Library Service
+# Music App
+The Music App is a simple web application built with Nest.js and TypeORM that allows users to manage albums and tracks for various artists. The application runs in a Docker container and includes features such as authentication, logging, unit tests, integration tests and etc.
+
+# Features
+- Authentication: Users can sign up, log in, and access protected routes to manage albums and tracks. 
+- Logging: The application logs important events and errors for easier debugging and monitoring.
+- Unit Tests: Comprehensive unit tests ensure the reliability and stability of the core functionalities.
+- Integration Tests: Integration tests validate the interactions between different components of the application.
+- Add Albums and Tracks and etc: Users can add new albums and tracks for different artists to expand the music collection.
 
 ## Prerequisites
 
